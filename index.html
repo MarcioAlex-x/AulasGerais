@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envio de Arquivos</title>
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <style>
+        .form {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            margin-bottom: 10px;
+        }
+        .lista-dos-trabalhos-enviados img {
+            max-width: 100px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Arquivos das Aulas</h1>
+    <div class="form">
+        <form id="uploadForm">
+            <div class="form-control">
+                <label>Nome:</label>
+                <input type="text" id="userName" placeholder="Informe o seu nome..." required>
+            </div>
+            <div class="form-control">
+                <label>Envie o seu arquivo</label>
+                <input type="file" id="fileInput" required>
+            </div>
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+    <div class="lista-dos-trabalhos-enviados" id="fileList">
+        <!-- Arquivos carregados aparecerão aqui -->
+    </div>
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAC3dV_uOTycG7jOlDMVMoiZGeVtKC-dDM",
+            authDomain: "arquivos-de-aula-f0653.firebaseapp.com",
+            projectId: "arquivos-de-aula-f0653",
+            storageBucket: "arquivos-de-aula-f0653.appspot.com",
+            messagingSenderId: "222299177082",
+            appId: "1:222299177082:web:ce6884021cc68bda41bbc3",
+            measurementId: "G-37GP6Y0D5D",
+        };
+
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        // Selecionar elementos do DOM
+        const uploadForm = document.getElementById("uploadForm");
+        const fileInput = document.getElementById("fileInput");
+        const fileList = document.getElementById("fileList");
+
+        // Função para fazer upload do arquivo
+        uploadForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) return alert("Por favor, selecione um arquivo.");
+
+            const userName = document.getElementById("userName").value;
+            const fileName = `${userName}_${file.name}`;
+
+            const storageRef = storage.ref().child(fileName);
+
+            try {
+                // Upload do arquivo
+                const snapshot = await storageRef.put(file);
+                const fileURL = await snapshot.ref.getDownloadURL();
+
+                // Exibir o arquivo na lista
+                addFileToList(fileURL);
+                alert("Arquivo enviado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao enviar arquivo:", error);
+                alert("Erro ao enviar o arquivo. Tente novamente.");
+            }
+        });
+
+        // Função para adicionar um arquivo à lista
+        function addFileToList(url) {
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = "Arquivo enviado";
+            img.title = "Clique para ampliar";
+            img.addEventListener("click", () => {
+                window.open(url, "_blank");
+            });
+
+            fileList.appendChild(img);
+        }
+    </script>
+</body>
+</html>
